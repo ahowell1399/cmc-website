@@ -1,0 +1,65 @@
+name: Deploy to GitHub Pages
+
+# Manual trigger only — never runs on push. Start it from the
+# Actions tab → "Deploy to GitHub Pages" → "Run workflow".
+on:
+  workflow_dispatch:
+
+# Permissions the deploy-pages action needs.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deploy at a time; a newer run cancels an in-progress one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        # The site is served from the root of the custom domain (cmcmod.com),
+        # so the default Vite base of "/" is correct — no VITE_BASE override.
+        run: npm run build
+
+      - name: Add custom domain, SPA fallback, disable Jekyll
+        # CNAME keeps the custom domain attached on every deploy (it MUST match
+        # the domain set in Settings → Pages). Pages has no SPA rewrite, so
+        # serving 404.html (a copy of index.html) lets deep links like
+        # cmcmod.com/contact resolve on refresh. .nojekyll stops Jekyll from
+        # dropping any files Vite emits.
+        run: |
+          echo 'cmcmod.com' > dist/CNAME
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

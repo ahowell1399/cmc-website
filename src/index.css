@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white font-sans text-slate-800 antialiased;
+  }
+
+  /* Offset for the sticky header when jumping to in-page anchors (e.g. #Ministry) */
+  :target {
+    scroll-margin-top: 6rem;
+  }
+
+  /* Headings inherit the surrounding text color so they work on both light
+     and dark sections (forcing a dark color here made dark-bg titles invisible). */
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-bold capitalize tracking-tight;
+  }
+}
+
+@layer components {
+  .container-content {
+    @apply mx-auto w-full max-w-content px-5 sm:px-6 lg:px-8;
+  }
+
+  .prose-cmc p {
+    @apply mb-4 leading-relaxed text-slate-600;
+  }
+}
+
+/* iOS Safari auto-zooms the page whenever a focused form field's font-size is
+   under 16px. Bump form controls to 16px on small screens so tapping a field
+   never triggers that zoom; the desktop (≥md) sizing is left untouched. */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

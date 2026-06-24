@@ -1,0 +1,21 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+# SPA fallback so client-side routes resolve on direct hits / refresh.
+# NOTE: this returns HTTP 200 for unknown paths (a "soft 404"). When the site
+# migrates to static pre-rendering (vite-react-ssg, see REACT-VITE-REBUILD-PLAN.md),
+# remove this rule and serve a real 404.html with status = 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
