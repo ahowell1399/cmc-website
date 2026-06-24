@@ -33,18 +33,19 @@ jobs:
         run: npm ci
 
       - name: Build
-        # The site is served from the root of the custom domain (cmcmod.com),
-        # so the default Vite base of "/" is correct — no VITE_BASE override.
+        # The site is served from the root of the custom domain
+        # (www.cmcmod.com), so the default Vite base of "/" is correct — no
+        # VITE_BASE override.
         run: npm run build
 
       - name: Add custom domain, SPA fallback, disable Jekyll
         # CNAME keeps the custom domain attached on every deploy (it MUST match
         # the domain set in Settings → Pages). Pages has no SPA rewrite, so
         # serving 404.html (a copy of index.html) lets deep links like
-        # cmcmod.com/contact resolve on refresh. .nojekyll stops Jekyll from
+        # www.cmcmod.com/contact resolve on refresh. .nojekyll stops Jekyll from
         # dropping any files Vite emits.
         run: |
-          echo 'cmcmod.com' > dist/CNAME
+          echo 'www.cmcmod.com' > dist/CNAME
           cp dist/index.html dist/404.html
           touch dist/.nojekyll
 
